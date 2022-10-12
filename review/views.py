@@ -52,7 +52,3 @@ def update(request, pk):
 def delete(request, pk):
     Review.objects.get(id=pk).delete()
     return redirect("review:index")
-
-
-# Create your views here.
- 

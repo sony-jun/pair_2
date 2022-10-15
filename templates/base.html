@@ -56,8 +56,8 @@
           </li>
         </ul>
         <div class="d-flex">
-          <span class="text-light"><a class="text-light" href="">
-              {{ request.user }}</a>님, 환영합니다!
+          <span class="text-light"><a class="text-light" href="{% url 'accounts:detail' user.pk %}">
+              {{ user }}</a>님, 환영합니다!
           </span>
         </div>
         {% else %}

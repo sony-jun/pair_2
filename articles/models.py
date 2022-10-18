@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
 from django.db import models
@@ -10,14 +11,14 @@ class Article(models.Model):
     image = ProcessedImageField(
         upload_to="images/",
         blank=True,
-        processors=[ResizeToFill(1200, 960)],
+        processors=[Thumbnail(300, 400)],
         format="JPEG",
         options={"quality": 80},
     )
-    thumbnail = ProcessedImageField(
-        upload_to="images/",
-        blank=True,
-        processors=[ResizeToFill(400, 300)],
-        format="JPEG",
-        options={"quality": 80},
-    )
+    thumbnail = ProcessedImageField(null=True)
+
+
+class Comment(models.Model):
+    content = models.TextField(max_length=80)
+    created_at = models.DateTimeField(auto_now_add=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)

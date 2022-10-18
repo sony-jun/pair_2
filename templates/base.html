@@ -45,6 +45,11 @@
           </li>
         </ul>
         <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'articles:index' %}">jpg와함께!</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav">
 
           {% if request.user.is_authenticated %}
 
@@ -76,7 +81,7 @@
   {% endblock nav %}
 
   <footer>
-    <div class="postion-fixed fixed-bottom p-4 bg-dark text-center text-white fw-light">sony-jun, dahlia, shark</div>
+    <div class="postion-fixed fixed-bottom p-1 bg-dark text-center text-white fw-light">sony-jun, dahlia, shark</div>
   </footer>
 
   {% block content %}{% endblock %}

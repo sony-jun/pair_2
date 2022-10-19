@@ -22,7 +22,7 @@
       <img src="https://dummyimage.com/1200x960/000000/c4c4c4" class="card-img-top">
       {% endif %}
       <div class="card-body">
-        <h5 class="card-title">{{ article.title }}</h5>
+        <h5 class="card-title">{{ article.title }} <br> {{article.user}}</h5>
         <a href="{% url 'articles:detail' article.pk %}" class="btn btn-outline-primary my-3">복습하기</a>
         <a href="{% url 'articles:delete' article.pk %}" class="btn btn-outline-primary my-3">삭제하기</a>
       </div>
@@ -30,4 +30,4 @@
   </div>
   {% endfor %}
 </div>
-{% endblock %}
+{% endblock content %}

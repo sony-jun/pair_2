@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import Comment
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,9 @@ def create(request):
     if request.method == "POST":
         article_form = ArticleForm(request.POST, request.FILES)
         if article_form.is_valid():
-            article_form.save()
+            article = article_form.save(commit=False)
+            article.user = request.user
+            article.save()
             messages.success(request, "글 작성이 완료되었습니다.")
             return redirect("articles:index")
     else:
@@ -43,18 +46,21 @@ def detail(request, pk):
 @login_required
 def update(request, pk):
     article = Article.objects.get(pk=pk)
-    if request.method == "POST":
+    if request.user == article.user:
+        if request.method == "POST":
 
-        article_form = ArticleForm(request.POST, request.FILES, instance=article)
-        if article_form.is_valid():
+            article_form = ArticleForm(request.POST, request.FILES, instance=article)
+            if article_form.is_valid():
 
-            article_form.save()
-            messages.success(request, "글이 수정되었습니다.")
-            return redirect("articles:detail", article.pk)
+                article_form.save()
+                messages.success(request, "글이 수정되었습니다.")
+                return redirect("articles:detail", article.pk)
 
+        else:
+
+            article_form = ArticleForm(instance=article)
     else:
-
-        article_form = ArticleForm(instance=article)
+        return redirect("articles:detail", article.pk)
     context = {"article_form": article_form}
     return render(request, "articles/form.html", context)
 
@@ -64,12 +70,14 @@ def delete(request, pk):
     return redirect("articles:index")
 
 
+@login_required
 def comment_create(request, pk):
     article = Article.objects.get(pk=pk)
     comment_form = CommentForm(request.POST)
     if comment_form.is_valid():
         comment = comment_form.save(commit=False)
         comment.article = article
+        comment.user = request.user
         comment.save()
     return redirect("articles:detail", article.pk)
 

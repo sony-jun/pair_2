@@ -27,8 +27,10 @@
 <hr>
 {% for comment in comments %}
 <p> {{ comment.user.username }} | {{ comment.content }}</p>
+
 <hr>
 {% empty %}
 <p>댓글이 없어요 ㅠ_ㅠ</p>
 {% endfor %}
+
 {% endblock content %}

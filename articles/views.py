@@ -1,8 +1,10 @@
+from django.http import JsonResponse
 from xml.etree.ElementTree import Comment
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Article, Comment
+from django.views.decorators.http import require_POST, require_safe
+from .models import Article
 from .forms import ArticleForm, CommentForm
 
 
@@ -60,10 +62,11 @@ def update(request, pk):
         else:
 
             article_form = ArticleForm(instance=article)
+        context = {"article_form": article_form}
+        return render(request, "articles/form.html", context)
     else:
+        messages.warning(request, "작성자만 수정할 수 있습니다.")
         return redirect("articles:detail", article.pk)
-    context = {"article_form": article_form}
-    return render(request, "articles/form.html", context)
 
 
 @login_required
@@ -74,14 +77,19 @@ def delete(request, pk):
 
 @login_required
 def comment_create(request, pk):
-    article = Article.objects.get(pk=pk)
+    print(request.POST)
+    article = get_object_or_404(Article, pk=pk)
     comment_form = CommentForm(request.POST)
     if comment_form.is_valid():
         comment = comment_form.save(commit=False)
         comment.article = article
         comment.user = request.user
         comment.save()
-    return redirect("articles:detail", article.pk)
+        context = {
+            "content": comment.content,
+            "userName": comment.user.username,
+        }
+        return JsonResponse(context)
 
 
 def comment_delete(request, pk, comment_pk):
@@ -94,9 +102,17 @@ def comment_delete(request, pk, comment_pk):
 
 @login_required
 def like(request, pk):
-    article = Article.objects.get(pk=pk)
+    article = get_object_or_404(Article, pk=pk)
+    # 만약에 로그인한 유저가 이 글을 좋아요를 눌렀다면,
+    # if article.like_users.filter(id=request.user.id).exists():
     if request.user in article.like_users.all():
+        # 좋아요 삭제하고
         article.like_users.remove(request.user)
+        is_liked = False
     else:
+        # 좋아요 추가하고
         article.like_users.add(request.user)
-    return redirect("articles:detail", pk)
+        is_liked = True
+    # 상세 페이지로 redirect
+    context = {"isLiked": is_liked, "likeCount": article.like_users.count()}
+    return JsonResponse(context)
